@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Quick Question...</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fff0f3;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+        }
+        .buttons {
+            margin-top: 30px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            height: 100px;
+        }
+        button, input {
+            padding: 14px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button {
+            touch-action: manipulation;
+        }
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+            z-index: 10;
+        }
+        #noBtn {
+            background-color: #adb5bd;
+            color: white;
+            transition: transform 0.2s ease-out; 
+        }
+        
+        /* Hidden Planner Screen */
+        #plannerScreen {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+        .input-group {
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            text-align: left;
+        }
+        label {
+            font-size: 14px;
+            color: #d90429;
+            font-weight: bold;
+        }
+        input[type="date"], input[type="time"] {
+            background-color: white;
+            border: 1px solid #ffccd5;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #submitBtn {
+            background-color: #ff4d6d;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- QUESTION SCREEN -->
+    <div class="container" id="questionScreen">
+        <h1>Will you go out on a date with me?</h1>
+        <div class="buttons">
+            <button id="yesBtn" onclick="showPlanner()">Yes!</button>
+            <button id="noBtn" onmouseover="dodge(event)" ontouchstart="dodge(event)">No</button>
+        </div>
+    </div>
+
+    <!-- PLANNER SCREEN (Hidden Initially) -->
+    <div class="container" id="plannerScreen">
+        <h1> Yay! Best decision ever. ❤️</h1>
+        <p>Let's lock down a time and place.</p>
+        
+        <div class="input-group">
+            <label for="datePicker">Pick a Day:</label>
+            <input type="date" id="datePicker">
+        </div>
+
+        <div class="input-group">
+            <label for="timePicker">Pick a Time:</label>
+            <input type="time" id="timePicker">
+        </div>
+
+        <div class="input-group">
+            <label for="ideaInput">What should we do?</label>
+            <input type="text" id="ideaInput" placeholder="Dinner, coffee, mini golf...">
+        </div>
+
+        <button id="submitBtn" onclick="sendDetails()">Send to Him/Her</button>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+
+        function dodge(e) {
+            const rect = noBtn.getBoundingClientRect();
+            const btnX = rect.left + rect.width / 2;
+            const btnY = rect.top + rect.height / 2;
+
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            if (e.type === 'touchstart' && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+
+            const angle = Math.atan2(btnY - clientY, btnX - clientX);
+            const pushDistance = 140;
+
+            const moveX = Math.cos(angle) * pushDistance;
+            const moveY = Math.sin(angle) * pushDistance;
+
+            noBtn.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        }
+
+        function showPlanner() {
+            // Hide question, show calendar planner section
+            document.getElementById('questionScreen').style.display = 'none';
+            document.getElementById('plannerScreen').style.display = 'block';
+        }
+
+        function sendDetails() {
+            const date = document.getElementById('datePicker').value;
+            const time = document.getElementById('timePicker').value;
+            const idea = document.getElementById('ideaInput').value;
+
+            if (!date || !time) {
+                alert("Please pick at least a date and time so we can plan it out!");
+                return;
+            }
+
+            // This creates a mailto link that pre-fills an email/text to you with her answers
+            const message = encodeURIComponent(`Hey! I picked our date. Date: ${date}, Time: ${time}, Idea: ${idea}`);
+            window.location.href = `mailto:your-email@gmail.com?subject=Date Locked In! ❤️&body=${message}`;
+        }
+    </script>
+</body>
+</html>
