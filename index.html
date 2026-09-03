@@ -31,6 +31,12 @@
             gap: 40px;
             height: 100px;
         }
+        .identity-buttons {
+            flex-direction: column;
+            gap: 15px;
+            height: auto;
+            margin-top: 20px;
+        }
         button, input {
             padding: 14px 20px;
             font-size: 16px;
@@ -41,7 +47,7 @@
         button {
             touch-action: manipulation;
         }
-        #yesBtn {
+        .yes-btn {
             background-color: #ff4d6d;
             color: white;
             z-index: 10;
@@ -49,14 +55,32 @@
         #noBtn {
             background-color: #adb5bd;
             color: white;
-            transition: transform 0.2s ease-out; 
+            transition: transform 0.2s ease-out, opacity 0.4s ease; 
+        }
+        .not-angie-btn {
+            background-color: #adb5bd;
+            color: white;
+            width: 100%;
         }
         
-        /* Hidden Planner Screen */
-        #plannerScreen {
+        /* Expanded Meme Image Styling */
+        .meme-img {
+            max-width: 280px;
+            width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        /* Hidden Screens */
+        #questionScreen, #plannerScreen, #deniedScreen {
             display: none;
+        }
+        
+        #identityScreen {
+            display: block;
             animation: fadeIn 0.5s ease-in-out forwards;
         }
+
         .input-group {
             margin: 15px 0;
             display: flex;
@@ -69,11 +93,14 @@
             color: #d90429;
             font-weight: bold;
         }
-        input[type="date"], input[type="time"] {
+        input[type="date"], input[type="time"], input[type="text"] {
             background-color: white;
             border: 1px solid #ffccd5;
             width: 100%;
             box-sizing: border-box;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-radius: 8px;
         }
         #submitBtn {
             background-color: #ff4d6d;
@@ -91,18 +118,37 @@
 </head>
 <body>
 
-    <!-- QUESTION SCREEN -->
+    <!-- IDENTITY CHECK SCREEN -->
+    <div class="container" id="identityScreen">
+        <h1>Hold on... who is this? 🧐</h1>
+        <div class="buttons identity-buttons">
+            <button class="yes-btn" style="width: 100%;" onclick="showQuestion()">It's Angie!</button>
+            <button class="not-angie-btn" onclick="showDenied()">Definitely not Angie ❌</button>
+        </div>
+    </div>
+
+    <!-- DENIED SCREEN (For Not Angie) -->
+    <div class="container" id="deniedScreen">
+        <img src="assets/huh.gif" alt="Huh Cat" class="meme-img">
+        <h1>ACCESS DENIED! 🚨</h1>
+        <p>This link is strictly reserved for Angie. Shoo!</p>
+    </div>
+
+    <!-- QUESTION SCREEN (Hidden Initially) -->
     <div class="container" id="questionScreen">
         <h1>Will you go out on a date with me?</h1>
         <div class="buttons">
-            <button id="yesBtn" onclick="showPlanner()">Yes!</button>
-            <button id="noBtn" onmouseover="dodge(event)" ontouchstart="dodge(event)">No</button>
+            <button class="yes-btn" onclick="showPlanner()">Yes!</button>
+            <!-- Unique ID for the dodging No button -->
+            <button id="noBtn" onmouseover="dodge(event)" ontouchstart="dodge(event)" onclick="fadeAway(this)">No</button>
         </div>
     </div>
 
     <!-- PLANNER SCREEN (Hidden Initially) -->
     <div class="container" id="plannerScreen">
-        <h1> Yay! Best decision ever. ❤️</h1>
+        <img src="assets/thumb.jpg" alt="Yippee!" class="meme-img">
+        
+        <h1>Yay! Best decision ever.</h1>
         <p>Let's lock down a time and place.</p>
         
         <div class="input-group">
@@ -120,11 +166,21 @@
             <input type="text" id="ideaInput" placeholder="Dinner, coffee, mini golf...">
         </div>
 
-        <button id="submitBtn" onclick="sendDetails()">Send to Him/Her</button>
+        <button id="submitBtn" onclick="sendDetails()">Send Details</button>
     </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
+
+        function showQuestion() {
+            document.getElementById('identityScreen').style.display = 'none';
+            document.getElementById('questionScreen').style.display = 'block';
+        }
+
+        function showDenied() {
+            document.getElementById('identityScreen').style.display = 'none';
+            document.getElementById('deniedScreen').style.display = 'block';
+        }
 
         function dodge(e) {
             const rect = noBtn.getBoundingClientRect();
@@ -148,8 +204,14 @@
             noBtn.style.transform = `translate(${moveX}px, ${moveY}px)`;
         }
 
+        function fadeAway(btn) {
+            btn.style.opacity = "0";
+            setTimeout(() => {
+                btn.style.display = "none";
+            }, 400);
+        }
+
         function showPlanner() {
-            // Hide question, show calendar planner section
             document.getElementById('questionScreen').style.display = 'none';
             document.getElementById('plannerScreen').style.display = 'block';
         }
@@ -164,9 +226,45 @@
                 return;
             }
 
-            // This creates a mailto link that pre-fills an email/text to you with her answers
-            const message = encodeURIComponent(`Hey! I picked our date. Date: ${date}, Time: ${time}, Idea: ${idea}`);
-            window.location.href = `mailto:your-email@gmail.com?subject=Date Locked In! ❤️&body=${message}`;
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sending...";
+
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbygsaIjJN4g7LPo_Qf5ArizryV5VffuyFjmgyxtd3f39fIbfBB-nR0lZ-fW_2pgADsA/exec';
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = scriptURL;
+            form.target = 'hiddeniframe';
+
+            const fields = { date: date, time: time, idea: idea };
+            for (const key in fields) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = fields[key];
+                form.appendChild(input);
+            }
+
+            let iframe = document.getElementById('hiddeniframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.name = 'hiddeniframe';
+                iframe.id = 'hiddeniframe';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+
+            setTimeout(() => {
+                document.getElementById('plannerScreen').innerHTML = `
+                    <img src="assets/yipee.gif" alt="Yippee!" class="meme-img">
+                    <h1>Got it!</h1>
+                    <p>I can't wait. See you then!</p>
+                `;
+            }, 500);
         }
     </script>
 </body>
