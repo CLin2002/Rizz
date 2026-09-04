@@ -128,7 +128,8 @@
     <div class="container" id="identityScreen">
         <h1>Hold on... who is this? 🧐</h1>
         <div class="buttons identity-buttons">
-            <button class="yes-btn" style="width: 100%;" onclick="showQuestion()">It's Angie!</button>
+            <!-- Music only triggers when Angie confirms her identity -->
+            <button class="yes-btn" style="width: 100%;" onclick="confirmAngie()">It's Angie!</button>
             <button class="not-angie-btn" onclick="showDenied()">Definitely not Angie ❌</button>
         </div>
     </div>
@@ -179,21 +180,19 @@
         const noBtn = document.getElementById('noBtn');
         const bgMusic = document.getElementById('bgMusic');
 
-        // Attempts to play music on the very first touch/click anywhere on the page
-        document.body.addEventListener('click', function playAudioOnce() {
+        function confirmAngie() {
+            // Play music only for Angie
             bgMusic.play().catch(error => {
-                console.log("Autoplay blocked/waiting for interaction");
+                console.log("Autoplay prevented:", error);
             });
-            // Remove listener after first interaction so it doesn't trigger repeatedly
-            document.body.removeEventListener('click', playAudioOnce);
-        }, { once: true });
-
-        function showQuestion() {
+            
+            // Switch to the question screen
             document.getElementById('identityScreen').style.display = 'none';
             document.getElementById('questionScreen').style.display = 'block';
         }
 
         function showDenied() {
+            // Music stays off, show denied screen
             document.getElementById('identityScreen').style.display = 'none';
             document.getElementById('deniedScreen').style.display = 'block';
         }
