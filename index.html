@@ -102,12 +102,15 @@
             font-size: 16px;
             border-radius: 8px;
         }
-        #submitBtn {
+        #submitBtn, .secondary-btn {
             background-color: #ff4d6d;
             color: white;
             width: 100%;
             margin-top: 10px;
             font-weight: bold;
+        }
+        .secondary-btn {
+            background-color: #adb5bd;
         }
 
         @keyframes fadeIn {
@@ -118,40 +121,33 @@
 </head>
 <body>
 
-    <!-- BACKGROUND MUSIC -->
     <audio id="bgMusic" loop>
         <source src="assets/One Less Lonely Girl.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
-    <!-- IDENTITY CHECK SCREEN -->
     <div class="container" id="identityScreen">
         <h1>Hold on... who is this? 🧐</h1>
         <div class="buttons identity-buttons">
-            <!-- Music only triggers when Angie confirms her identity -->
             <button class="yes-btn" style="width: 100%;" onclick="confirmAngie()">It's Angie!</button>
             <button class="not-angie-btn" onclick="showDenied()">Definitely not Angie ❌</button>
         </div>
     </div>
 
-    <!-- DENIED SCREEN (For Not Angie) -->
     <div class="container" id="deniedScreen">
         <img src="assets/huh.gif" alt="Huh Cat" class="meme-img">
         <h1>ACCESS DENIED! 🚨</h1>
         <p>This link is strictly reserved for Angie. Shoo!</p>
     </div>
 
-    <!-- QUESTION SCREEN (Hidden Initially) -->
     <div class="container" id="questionScreen">
         <h1>Will you go out on a date with me?</h1>
         <div class="buttons">
             <button class="yes-btn" onclick="showPlanner()">Yes!</button>
-            <!-- Unique ID for the dodging No button -->
             <button id="noBtn" onmouseover="dodge(event)" ontouchstart="dodge(event)" onclick="fadeAway(this)">No</button>
         </div>
     </div>
 
-    <!-- PLANNER SCREEN (Hidden Initially) -->
     <div class="container" id="plannerScreen">
         <img src="assets/thumb.jpg" alt="Yippee!" class="meme-img">
         
@@ -231,6 +227,33 @@
             document.getElementById('plannerScreen').style.display = 'block';
         }
 
+        function resetPlanner() {
+            // Restore original planner HTML content so she can pick new inputs
+            document.getElementById('plannerScreen').innerHTML = `
+                <img src="assets/thumb.jpg" alt="Yippee!" class="meme-img">
+                
+                <h1>Need to switch it up?</h1>
+                <p>Drop some more availability below!</p>
+                
+                <div class="input-group">
+                    <label for="datePicker">Pick a Day:</label>
+                    <input type="date" id="datePicker">
+                </div>
+
+                <div class="input-group">
+                    <label for="timePicker">Pick a Time:</label>
+                    <input type="time" id="timePicker">
+                </div>
+
+                <div class="input-group">
+                    <label for="ideaInput">What should we do?</label>
+                    <input type="text" id="ideaInput" placeholder="Dinner, drinks, run a marathon...">
+                </div>
+
+                <button id="submitBtn" onclick="sendDetails()">Send Details</button>
+            `;
+        }
+
         function sendDetails() {
             const date = document.getElementById('datePicker').value;
             const time = document.getElementById('timePicker').value;
@@ -278,6 +301,7 @@
                     <img src="assets/yipee.gif" alt="Yippee!" class="meme-img">
                     <h1>Got it!</h1>
                     <p>I can't wait. See you then!</p>
+                    <button class="secondary-btn" onclick="resetPlanner()">Submit more availability 📅</button>
                 `;
             }, 500);
         }
